@@ -3,6 +3,8 @@ import MenuItem from 'material-ui/MenuItem';
 
 const EditorSettings = {
     peerKey: 'get-your-own-key-dude',
+    peerHost: 'localhost',
+    peerPort: 6969,
     langs: [
         'r','d','sql','xml','abap', 'abc', 'actionscript', 'ada', 'apache_conf', 'applescript', 'asciidoc', 'assembly_x86', 'autohotkey',
         'batchfile', 'bro', 'c_cpp', 'c9search', 'cirru', 'clojure', 'cobol', 'coffee', 'coldfusion', 'csharp', 'css',

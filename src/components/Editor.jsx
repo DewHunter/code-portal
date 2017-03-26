@@ -4,6 +4,7 @@ import EditorSettings from '../constants/editor-settings';
 import FlatButton from 'material-ui/FlatButton';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import GearIcon from 'material-ui/svg-icons/action/settings';
+import SettingsDrawer from './SettingsDrawer';
 // sorry about this, I suck I know...
 import 'brace/mode/abc'
 import 'brace/mode/actionscript'
@@ -174,7 +175,6 @@ var Peer = require('peerjs');
 class Editor extends Component {
     constructor(props) {
         super(props);
-
         this.state = {
             peer: undefined,
             conn: undefined,
@@ -182,10 +182,18 @@ class Editor extends Component {
                     " * This is just a test!\n" +
                     " */\n" +
                     "function sayHello() {\n" +
-                    "    console.log('Hello!');\n" +
+                    "    console.log('Hello, Welcome to code-portal!');\n" +
                     "}\n",
-            height: "inherit",
-            width: "inherit"
+            showSettingsMenu: false,
+            theme: 'monokai',
+            mode: "javascript",
+            fontSize: 16,
+            wrap: true,
+            showGutter: true,
+            showInvisibles: false,
+            displayIndentLines: true,
+            highlightActiveLine: true,
+            scrollPassedEnd: true
         };
     }
 
@@ -259,7 +267,8 @@ class Editor extends Component {
                     hoverColor="#8AA62F"
                     style={{
                         margin: 12,
-                        top: '800px',
+                        position: 'absolute',
+                        bottom: '45px',
                         left: '100px'
                     }}
                     onTouchTap={this.startPeerConnection}
@@ -270,37 +279,57 @@ class Editor extends Component {
                     hoverColor="#8AA62F"
                     style={{
                         margin: 12,
-                        top: '800px',
-                        left: '150'
+                        position: 'absolute',
+                        bottom: '45px',
+                        left: '250px'
                     }}
                     onTouchTap={this.startPeerConnection2}
                     />
                 <FloatingActionButton
                     style={{
                         margin: 12,
-                        position: 'relative',
-                        float: 'right',
-                        bottom: '100px'
-                    }}>
+                        position: 'absolute',
+                        left: '650px',
+                        top: '80px'
+                    }}
+                    onTouchTap={()=>this.setState({showSettingsMenu: true})}>
                     <GearIcon />
                 </FloatingActionButton>
                 <AceEditor
-                    mode={this.props.mode}
-                    theme={this.props.theme}
+                    mode={this.state.mode}
+                    theme={this.state.theme}
                     name="editor-unique"
-                    fontSize={this.props.fontSize}
-                    height={this.state.height}
-                    width={this.state.width}
+                    fontSize={this.state.fontSize}
+                    height="inherit"
+                    width="inherit"
                     value={this.state.value}
-                    wrapEnabled={this.props.wrap}
+                    wrapEnabled={this.state.wrap}
                     onChange={this.updateStateValue}
                     editorProps={{$blockScrolling: true}}
                     setOptions={{
-                        showGutter: this.props.showGutter,
-                        showInvisibles: this.props.showInvisibles,
-                        displayIndentGuides: this.props.displayIndentGuides,
-                        highlightActiveLine: this.props.highlightActiveLine
+                        showGutter: this.state.showGutter,
+                        showInvisibles: this.state.showInvisibles,
+                        displayIndentGuides: this.state.displayIndentGuides,
+                        highlightActiveLine: this.state.highlightActiveLine,
+                        scrollPastEnd: this.state.scrollPassedEnd
                     }}
+                />
+                <SettingsDrawer 
+                    open={this.state.showSettingsMenu}
+                    onCloseDrawer={() => this.setState({showSettingsMenu: false})}
+                    onModeEnter={(chosenRequest, index) => {this.setState({mode: chosenRequest});}}
+                    editorTheme={this.state.theme}
+                    onEditorThemeChange={(event, index, value) => {this.setState({theme: value});}}
+                    editorWrap={this.state.wrap}
+                    onEditorWrapToggle={(event, isInputChecked) => {this.setState({wrap: isInputChecked});}}
+                    editorDisplayIndentGuides={this.state.displayIndentLines}
+                    onIndentLinesToggle={(event, isInputChecked) => {this.setState({displayIndentLines: isInputChecked});}}
+                    editorHighlightActiveLine={this.state.highlightActiveLine}
+                    onHighlightLineToggle={(event, isInputChecked) => {this.setState({highlightActiveLine: isInputChecked});}}
+                    editorShowInvisibles={this.state.showInvisibles}
+                    onShowInvisiblesToggle={(event, isInputChecked) => {this.setState({showInvisibles: isInputChecked});}}
+                    editorShowGutter={this.state.showGutter}
+                    onShowGutterToggle={(event, isInputChecked) => {this.setState({showGutter: isInputChecked});}}
                 />
             </div>
         );

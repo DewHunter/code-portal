@@ -20,4 +20,17 @@ This may not be suited for full fledge projects, but I can see it being very use
 Jorge Ramos (DewHunter)
 ```
 
+## For Devs
+
+Setup:
+
+- git clone https://github.com/DewHunter/code-portal.git
+- cd code-portal
+- npm install
+- npm start
+
+Additionally, get a [PeerJs API key](http://peerjs.com/docs/#api) and put it in code-portal/constants/editor-settings.js
+
+And you are good to go!
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
