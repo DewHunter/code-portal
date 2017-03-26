@@ -13,6 +13,10 @@ import {Table, TableBody, TableRow, TableRowColumn} from 'material-ui/Table';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import Toggle from 'material-ui/Toggle';
 import AutoComplete from 'material-ui/AutoComplete';
+import RaisedButton from 'material-ui/RaisedButton';
+import FontIcon from 'material-ui/FontIcon';
+import FlatButton from 'material-ui/FlatButton';
+import ActionAndroid from 'material-ui/svg-icons/action/code';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
@@ -65,12 +69,12 @@ class App extends Component {
             title="Code Portal"
             showMenuIconButton={false}
             iconElementRight={
-              <IconButton
-                tooltip='Editor Settings'
-                onTouchTap={this.handleSettingsToggle}
-                touch={true}
-                tooltipPosition="bottom-left"
-                iconClassName="muidocs-icon-custom-github" />
+                <FlatButton
+                    href="https://github.com/DewHunter/code-portal"
+                    target="_blank"
+                    icon={<ActionAndroid />}
+                    style={{margin: 5}}
+                    />
             }
           />
           <Editor

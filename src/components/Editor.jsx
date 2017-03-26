@@ -262,7 +262,7 @@ class Editor extends Component {
                         top: '800px',
                         left: '100px'
                     }}
-                    onTouchTap = {this.startPeerConnection}
+                    onTouchTap={this.startPeerConnection}
                     />
                 <FlatButton
                     label='Connect 2'
@@ -273,14 +273,14 @@ class Editor extends Component {
                         top: '800px',
                         left: '150'
                     }}
-                    onTouchTap = {this.startPeerConnection2}
+                    onTouchTap={this.startPeerConnection2}
                     />
                 <FloatingActionButton
-                    secondary={true}
                     style={{
                         margin: 12,
                         position: 'relative',
-                        float: 'right'
+                        float: 'right',
+                        bottom: '100px'
                     }}>
                     <GearIcon />
                 </FloatingActionButton>
