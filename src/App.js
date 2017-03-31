@@ -30,8 +30,6 @@ class App extends Component {
             showMenuIconButton={false}
             iconElementRight={
                 <FlatButton
-                    href="https://github.com/DewHunter/code-portal"
-                    target="_blank"
                     icon={<CodeIcon />}
                     style={{margin: 5}}
                 />

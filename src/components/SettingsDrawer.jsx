@@ -27,6 +27,7 @@ class SettingsDrawer extends Component {
                             <TableRowColumn>
                                 <span style={{margin: 0,'marginBottom':0}}><h3>Search for your language</h3></span>
                                 <AutoComplete
+                                    searchText={this.props.mode}
                                     onNewRequest={this.props.onModeEnter}
                                     style={{margin:0, padding: 0}}
                                     floatingLabelText="javascript by default..."

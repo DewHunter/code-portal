@@ -2,7 +2,7 @@ import React from 'react';
 import MenuItem from 'material-ui/MenuItem';
 
 const EditorSettings = {
-    peerKey: 'get-your-own-key-dude',
+    peerKey: '8ml1f1hdsty8ehfr',
     peerHost: 'localhost',
     peerPort: 6969,
     langs: [
@@ -21,7 +21,7 @@ const EditorSettings = {
         'yaml'
     ],
     themes: [
-        <MenuItem value='monokai' primaryText='monokai' />,
+        <MenuItem key={0} value='monokai' primaryText='monokai' />,
         <MenuItem value='xcode' primaryText='xcode' />,
         <MenuItem value='ambiance' primaryText='ambiance' />,
         <MenuItem value='chaos' primaryText='chaos' />,

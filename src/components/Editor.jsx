@@ -1,10 +1,15 @@
 import React, { Component } from 'react'
 import AceEditor from 'react-ace';
 import EditorSettings from '../constants/editor-settings';
-import FlatButton from 'material-ui/FlatButton';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import GearIcon from 'material-ui/svg-icons/action/settings';
+import EjectIcon from 'material-ui/svg-icons/action/eject';
 import SettingsDrawer from './SettingsDrawer';
+import StartSessionDialog from './StartSessionDialog';
+import SessionToolbar from './SessionToolbar';
+import diff from '../constants/diff';
+import applyDiff from '../constants/applyDiff';
+import urlObject from '../constants/urlObject';
 // sorry about this, I suck I know...
 import 'brace/mode/abc'
 import 'brace/mode/actionscript'
@@ -172,10 +177,16 @@ import 'brace/theme/xcode';
 
 var Peer = require('peerjs');
 
+const _id = '?id=';
+const _wacks = '//';
+
 class Editor extends Component {
     constructor(props) {
         super(props);
+        var u = urlObject();
+        console.log(u);
         this.state = {
+            urlObj: u,
             peer: undefined,
             conn: undefined,
             value:  "/**\n" +
@@ -185,29 +196,51 @@ class Editor extends Component {
                     "    console.log('Hello, Welcome to code-portal!');\n" +
                     "}\n",
             showSettingsMenu: false,
+            startConnectionDialog: false,
+            shareLink: undefined,
             theme: 'monokai',
             mode: "javascript",
+            modeErrorMessage: '',
             fontSize: 16,
             wrap: true,
             showGutter: true,
             showInvisibles: false,
             displayIndentLines: true,
             highlightActiveLine: true,
-            scrollPassedEnd: true
+            scrollPassedEnd: true,
+            updated: false
         };
     }
 
+    componentDidMount() {
+        if (this.state.urlObj.parameters.id !== undefined) {
+            this.startPeerConnection2(this.state.urlObj.parameters.id);
+            this.setState({shareLink: 'You are connected to your friend!'});
+        }
+    }
+
     receiveData = (newData) => {
-        this.setState({
-            value: newData
-        });
+        if (newData.mode === 'updateMe') {
+            this.state.conn.send({left: -1, mode: 'replace', change: this.state.value});
+        } else {
+            var newVal = applyDiff(newData, this.state.value);
+            this.setState({
+                value: newVal
+            });
+        }
     }
     
     startPeerConnection = () => {
-        var currData = this.state.value;
-        var peer = new Peer('code-portal-dewhunter', {key: EditorSettings.peerKey});
+        var peer = new Peer({key: EditorSettings.peerKey});
+        this.setState({peer: peer});
+        var setId = (id) => {
+            this.setState({
+                shareLink: this.state.urlObj.protocol.concat(_wacks, this.state.urlObj.host, _id, id)
+            });
+        }
         peer.on('open', function(id) {
             console.log('My peer ID is: ' + id);
+            setId(id);
         });
         var addConn = (newConn) => {
             this.setState({
@@ -223,35 +256,43 @@ class Editor extends Component {
                 conn.on('data', function(data) {
                     acceptData(data);
                 });
-
-                conn.send(currData);
             });
             addConn(conn);
         });
     }
 
-    startPeerConnection2 = () => {
+    startPeerConnection2 = (friendId) => {
         var acceptData = (data) => {
             this.receiveData(data);
         }
-        var peer = new Peer('code-portal-dewhunter-2', {key: EditorSettings.peerKey});
-        peer.on('open', function(id) {
+        var peer = new Peer({key: EditorSettings.peerKey});
+        this.setState({peer: peer});
+        peer.on('open', (id) => {
             console.log('My peer ID is: ' + id);
         });
-        var conn = peer.connect('code-portal-dewhunter');
-        conn.on('open', function() {
+        peer.on('error', (err) => {
+            console.log(err);
+            this.state.peer.destroy();
+            this.setState({peer: undefined, conn: undefined, shareLink: undefined});
+        });
+        var conn = peer.connect(friendId);
+        this.setState({conn: conn});
+        conn.on('open', () => {
             conn.on('data', function(data) {
                 acceptData(data);
             });
+            conn.send({mode: 'updateMe'});
         });
-        this.setState({
-            conn: conn
+        conn.on('error', (err) => {
+            console.log(err);
+            this.state.peer.destroy();
+            this.setState({peer: undefined, conn: undefined, shareLink: undefined});
         });
     }
 
     updateStateValue = (newValue) => {
         if (this.state.conn !== undefined) {
-            this.state.conn.send(newValue);
+            this.state.conn.send(diff(this.state.value, newValue));
         }
         this.setState({
             value: newValue
@@ -259,43 +300,46 @@ class Editor extends Component {
     }
 
     render() {
+        const isLive = this.state.peer !== undefined;
+        const goSessionDialog = !isLive ?
+            <div><FloatingActionButton
+                    backgroundColor='#8BC34A'
+                    style={{
+                        margin: 12,
+                        position: 'relative',
+                        top: '250px',
+                        left: '800px'
+                    }}
+                    onTouchTap={()=>this.setState({startConnectionDialog: true})}>
+                        <EjectIcon />
+            </FloatingActionButton>
+            <StartSessionDialog
+                open={this.state.startConnectionDialog}
+                onAbort={()=>this.setState({startConnectionDialog: false})}
+                onGo={()=>{
+                    this.setState({startConnectionDialog: false});
+                    this.startPeerConnection();
+                }}
+            /></div>: <div/>;
+        const sessionToolbar = isLive ?
+            <SessionToolbar
+                shareLink={this.state.shareLink}
+                stopSession={() => {
+                    this.state.peer.destroy();
+                    this.setState({peer: undefined, conn: undefined, shareLink: undefined});
+                }}
+            /> : <div/>;
+
+        if (isLive && this.refs.editor !== undefined) {
+            this.refs.editor.refs.editor.style.top = '106px'; // lmao this hack
+        } else if (this.refs.editor !== undefined) {
+            this.refs.editor.refs.editor.style.top = '50px';
+        }
+
         return (
             <div>
-                <FlatButton
-                    label='Connect'
-                    backgroundColor="#a4c639"
-                    hoverColor="#8AA62F"
-                    style={{
-                        margin: 12,
-                        position: 'absolute',
-                        bottom: '45px',
-                        left: '100px'
-                    }}
-                    onTouchTap={this.startPeerConnection}
-                    />
-                <FlatButton
-                    label='Connect 2'
-                    backgroundColor="#a4c639"
-                    hoverColor="#8AA62F"
-                    style={{
-                        margin: 12,
-                        position: 'absolute',
-                        bottom: '45px',
-                        left: '250px'
-                    }}
-                    onTouchTap={this.startPeerConnection2}
-                    />
-                <FloatingActionButton
-                    style={{
-                        margin: 12,
-                        position: 'absolute',
-                        left: '650px',
-                        top: '80px'
-                    }}
-                    onTouchTap={()=>this.setState({showSettingsMenu: true})}>
-                    <GearIcon />
-                </FloatingActionButton>
-                <AceEditor
+                {sessionToolbar}
+                <AceEditor ref="editor"
                     mode={this.state.mode}
                     theme={this.state.theme}
                     name="editor-unique"
@@ -314,10 +358,17 @@ class Editor extends Component {
                         scrollPastEnd: this.state.scrollPassedEnd
                     }}
                 />
-                <SettingsDrawer 
+                <SettingsDrawer
                     open={this.state.showSettingsMenu}
                     onCloseDrawer={() => this.setState({showSettingsMenu: false})}
-                    onModeEnter={(chosenRequest, index) => {this.setState({mode: chosenRequest});}}
+                    mode={this.state.mode}
+                    onModeEnter={(chosenRequest, index) => {
+                        if (EditorSettings.langs.indexOf(chosenRequest) !== -1) {
+                            this.setState({mode: chosenRequest});
+                        } else {
+                            this.setState({mode: 'javascript'});
+                        }
+                    }}
                     editorTheme={this.state.theme}
                     onEditorThemeChange={(event, index, value) => {this.setState({theme: value});}}
                     editorWrap={this.state.wrap}
@@ -331,9 +382,20 @@ class Editor extends Component {
                     editorShowGutter={this.state.showGutter}
                     onShowGutterToggle={(event, isInputChecked) => {this.setState({showGutter: isInputChecked});}}
                 />
+                <FloatingActionButton
+                    style={{
+                        margin: 12,
+                        position: 'relative',
+                        top: '40px',
+                        left: '800px'
+                    }}
+                    onTouchTap={()=>this.setState({showSettingsMenu: true})}>
+                        <GearIcon />
+                </FloatingActionButton>
+                {goSessionDialog}
             </div>
         );
     }
 }
 
-export default Editor
+export default Editor;
