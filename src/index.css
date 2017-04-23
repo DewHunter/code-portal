@@ -3,6 +3,29 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+.container {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: flex-start;
+  align-items: flex-end;
+  height: 100%;
+  width: 100%;
+  background-color: #8BC34A;
+}
+
+.sessionToolbar {
+}
+
+.settingsbutton {
+  margin: 30px;
+}
+
+.sessionButton {
+  order: 4;
+  margin: 30px;
+}
+
 #editor-unique {
   position: absolute;
   top: 50px;

@@ -1,15 +1,4 @@
-import React, { Component } from 'react'
 import AceEditor from 'react-ace';
-import EditorSettings from '../constants/editor-settings';
-import FloatingActionButton from 'material-ui/FloatingActionButton';
-import GearIcon from 'material-ui/svg-icons/action/settings';
-import EjectIcon from 'material-ui/svg-icons/action/eject';
-import SettingsDrawer from './SettingsDrawer';
-import StartSessionDialog from './StartSessionDialog';
-import SessionToolbar from './SessionToolbar';
-import diff from '../constants/diff';
-import applyDiff from '../constants/applyDiff';
-import urlObject from '../constants/urlObject';
 // sorry about this, I suck I know...
 import 'brace/mode/abc'
 import 'brace/mode/actionscript'
@@ -174,142 +163,48 @@ import 'brace/theme/merbivore_soft';
 import 'brace/theme/mono_industrial';
 import 'brace/theme/monokai';
 import 'brace/theme/xcode';
-
-var Peer = require('peerjs');
-
-const _id = '?id=';
-const _wacks = '//';
+/** REAL FILE STARTS HERE, NOTHING TO SEE ABOVE THIS **/
+import React, { Component } from 'react';
+import EditorSettings from '../constants/editor-settings';
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+import GearIcon from 'material-ui/svg-icons/action/settings';
+import EjectIcon from 'material-ui/svg-icons/action/eject';
+import SettingsDrawer from './SettingsDrawer';
+import StartSessionDialog from './StartSessionDialog';
+import SessionToolbar from './SessionToolbar';
+import urlObject from '../constants/urlObject';
 
 class Editor extends Component {
     constructor(props) {
         super(props);
         var u = urlObject();
-        console.log(u);
         this.state = {
             urlObj: u,
-            peer: undefined,
-            conn: undefined,
-            value:  "/**\n" +
-                    " * This is just a test!\n" +
-                    " */\n" +
-                    "function sayHello() {\n" +
-                    "    console.log('Hello, Welcome to code-portal!');\n" +
-                    "}\n",
             showSettingsMenu: false,
             startConnectionDialog: false,
-            shareLink: undefined,
             theme: 'monokai',
             mode: "javascript",
-            modeErrorMessage: '',
             fontSize: 16,
             wrap: true,
             showGutter: true,
             showInvisibles: false,
             displayIndentLines: true,
             highlightActiveLine: true,
-            scrollPassedEnd: true,
-            updated: false
+            scrollPassedEnd: true
         };
     }
 
     componentDidMount() {
         if (this.state.urlObj.parameters.id !== undefined) {
-            this.startPeerConnection2(this.state.urlObj.parameters.id);
-            this.setState({shareLink: 'You are connected to your friend!'});
+            this.props.onStartSession(this.state.urlObj, false);
         }
-    }
-
-    receiveData = (newData) => {
-        if (newData.mode === 'updateMe') {
-            this.state.conn.send({left: -1, mode: 'replace', change: this.state.value});
-        } else {
-            var newVal = applyDiff(newData, this.state.value);
-            this.setState({
-                value: newVal
-            });
-        }
-    }
-    
-    startPeerConnection = () => {
-        var peer = new Peer({key: EditorSettings.peerKey});
-        this.setState({peer: peer});
-        var setId = (id) => {
-            this.setState({
-                shareLink: this.state.urlObj.protocol.concat(_wacks, this.state.urlObj.host, _id, id)
-            });
-        }
-        peer.on('open', function(id) {
-            console.log('My peer ID is: ' + id);
-            setId(id);
-        });
-        var addConn = (newConn) => {
-            this.setState({
-                conn: newConn
-            });
-        }
-        var acceptData = (data) => {
-            this.receiveData(data);
-        }
-        peer.on('connection', function(conn) {
-            console.log('Accepted Connection!', conn);
-            conn.on('open', function() {
-                conn.on('data', function(data) {
-                    acceptData(data);
-                });
-            });
-            addConn(conn);
-        });
-    }
-
-    startPeerConnection2 = (friendId) => {
-        var acceptData = (data) => {
-            this.receiveData(data);
-        }
-        var peer = new Peer({key: EditorSettings.peerKey});
-        this.setState({peer: peer});
-        peer.on('open', (id) => {
-            console.log('My peer ID is: ' + id);
-        });
-        peer.on('error', (err) => {
-            console.log(err);
-            this.state.peer.destroy();
-            this.setState({peer: undefined, conn: undefined, shareLink: undefined});
-        });
-        var conn = peer.connect(friendId);
-        this.setState({conn: conn});
-        conn.on('open', () => {
-            conn.on('data', function(data) {
-                acceptData(data);
-            });
-            conn.send({mode: 'updateMe'});
-        });
-        conn.on('error', (err) => {
-            console.log(err);
-            this.state.peer.destroy();
-            this.setState({peer: undefined, conn: undefined, shareLink: undefined});
-        });
-    }
-
-    updateStateValue = (newValue) => {
-        if (this.state.conn !== undefined) {
-            this.state.conn.send(diff(this.state.value, newValue));
-        }
-        this.setState({
-            value: newValue
-        });
     }
 
     render() {
-        const isLive = this.state.peer !== undefined;
-        const goSessionDialog = !isLive ?
+        const goSessionDialog = !this.props.isLive ?
             <div><FloatingActionButton
+                    className="sessionButton"
                     backgroundColor='#8BC34A'
-                    style={{
-                        margin: 12,
-                        position: 'relative',
-                        top: '250px',
-                        left: '800px'
-                    }}
                     onTouchTap={()=>this.setState({startConnectionDialog: true})}>
                         <EjectIcon />
             </FloatingActionButton>
@@ -318,27 +213,17 @@ class Editor extends Component {
                 onAbort={()=>this.setState({startConnectionDialog: false})}
                 onGo={()=>{
                     this.setState({startConnectionDialog: false});
-                    this.startPeerConnection();
+                    this.props.onStartSession(this.state.urlObj, true);
                 }}
             /></div>: <div/>;
-        const sessionToolbar = isLive ?
-            <SessionToolbar
-                shareLink={this.state.shareLink}
-                stopSession={() => {
-                    this.state.peer.destroy();
-                    this.setState({peer: undefined, conn: undefined, shareLink: undefined});
-                }}
-            /> : <div/>;
 
-        if (isLive && this.refs.editor !== undefined) {
+        if (this.props.isLive && this.refs.editor !== undefined) {
             this.refs.editor.refs.editor.style.top = '106px'; // lmao this hack
         } else if (this.refs.editor !== undefined) {
             this.refs.editor.refs.editor.style.top = '50px';
         }
-
         return (
-            <div>
-                {sessionToolbar}
+            <div className="container">
                 <AceEditor ref="editor"
                     mode={this.state.mode}
                     theme={this.state.theme}
@@ -346,10 +231,10 @@ class Editor extends Component {
                     fontSize={this.state.fontSize}
                     height="inherit"
                     width="inherit"
-                    value={this.state.value}
+                    value={this.props.docStr}
                     wrapEnabled={this.state.wrap}
-                    onChange={this.updateStateValue}
-                    editorProps={{$blockScrolling: true}}
+                    onChange={this.props.onLocalDocumentChange}
+                    editorProps={{$blockScrolling: Infinity}}
                     setOptions={{
                         showGutter: this.state.showGutter,
                         showInvisibles: this.state.showInvisibles,
@@ -382,13 +267,19 @@ class Editor extends Component {
                     editorShowGutter={this.state.showGutter}
                     onShowGutterToggle={(event, isInputChecked) => {this.setState({showGutter: isInputChecked});}}
                 />
+                <div className="sessionToolbar">
+                    <SessionToolbar
+                        show={this.props.isLive}
+                        isHost={this.state.urlObj.parameters.id === undefined}
+                        shareLink={this.props.shareLink}
+                        stopSession={() => {
+                            this.props.onKillSession();
+                            this.props.onKillSession();
+                        }}
+                    />
+                </div>
                 <FloatingActionButton
-                    style={{
-                        margin: 12,
-                        position: 'relative',
-                        top: '40px',
-                        left: '800px'
-                    }}
+                    className="settingsbutton"
                     onTouchTap={()=>this.setState({showSettingsMenu: true})}>
                         <GearIcon />
                 </FloatingActionButton>
