@@ -159,7 +159,6 @@ export const localUpdate = (newDocStr) => {
     return (dispatch, getState) => {
         let currDoc = getState().doc;
         let data = docDiff(currDoc, newDocStr);
-        console.log(data);
         dispatch(documentUpdate(data, undefined));
         if (getState().peerSystem.peers !== undefined &&
             getState().peerSystem.peers.length > 0) {

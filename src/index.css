@@ -9,9 +9,10 @@ body {
   flex-flow: column wrap;
   justify-content: flex-start;
   align-items: flex-end;
-  height: 100%;
+  height: inherit;
   width: 100%;
   background-color: #8BC34A;
+  overflow: hidden;
 }
 
 .sessionToolbar {
