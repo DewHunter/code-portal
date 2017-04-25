@@ -155,7 +155,7 @@ import 'brace/theme/cobalt';
 // import 'brace/theme/eclipse';
 import 'brace/theme/github';
 import 'brace/theme/iplastic';
-import 'brace/theme/katzenmilch';
+// import 'brace/theme/katzenmilch';
 import 'brace/theme/kr_theme';
 import 'brace/theme/kuroir';
 import 'brace/theme/merbivore';
