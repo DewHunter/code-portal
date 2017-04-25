@@ -30,7 +30,7 @@ const doc = (state = initialState, action) => {
                 case 'lineUpdate':
                     idx = 0;
                     return state.map((item) => {
-                        if (action.data.diff[idx] !== undefined && item.id === action.data.diff[idx].id) {
+                        if ((action.data.diff[idx] !== undefined && action.data.diff[idx] !== null) && item.id === action.data.diff[idx].id) {
                             return {
                                 id: item.id,
                                 line: action.data.diff[idx++].newLine
@@ -42,8 +42,8 @@ const doc = (state = initialState, action) => {
                 case 'lineDelete':
                     idx = 0;
                     return state.map((item) => {
-                        if (action.data.diff[idx] !== undefined && item.id === action.data.diff[idx].id) {
-                            if (action.data.diff[idx].line !== undefined) {
+                        if ((action.data.diff[idx] !== undefined && action.data.diff[idx] !== null) && item.id === action.data.diff[idx].id) {
+                            if (action.data.diff[idx].line !== undefined && action.data.diff[idx].line !== null) {
                                 return {
                                     id: item.id,
                                     line: action.data.diff[idx++].line
