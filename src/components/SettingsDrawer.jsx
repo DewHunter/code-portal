@@ -7,7 +7,6 @@ import Drawer from 'material-ui/Drawer';
 import {Table, TableBody, TableRow, TableRowColumn} from 'material-ui/Table';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import Toggle from 'material-ui/Toggle';
-import AutoComplete from 'material-ui/AutoComplete';
 
 class SettingsDrawer extends Component {
     render() {
@@ -25,21 +24,19 @@ class SettingsDrawer extends Component {
                     <TableBody displayRowCheckbox={false}>
                         <TableRow>
                             <TableRowColumn>
-                                <span style={{margin: 0,'marginBottom':0}}><h3>Search for your language</h3></span>
-                                <AutoComplete
-                                    searchText={this.props.mode}
-                                    onNewRequest={this.props.onModeEnter}
-                                    style={{margin:0, padding: 0}}
-                                    floatingLabelText="javascript by default..."
-                                    filter={AutoComplete.fuzzyFilter}
-                                    dataSource={EditorSettings.langs}
-                                    maxSearchResults={10}
-                                />
+                                <span style={{float: 'left', margin: 2}}><h3>Coloring</h3></span>
+                                <DropDownMenu
+                                    style={{float:'right',padding:0,width:180}}
+                                    autoWidth={false}
+                                    value={this.props.mode}
+                                    onChange={this.props.onModeThemeChange}>
+                                        {EditorSettings.langsMenu}
+                                </DropDownMenu>
                             </TableRowColumn>
                         </TableRow>
                         <TableRow>
                             <TableRowColumn>
-                                <span style={{float: 'left', margin: 5}}><h3>Theme</h3></span>
+                                <span style={{float: 'left', margin: 2}}><h3>Theme</h3></span>
                                 <DropDownMenu
                                     style={{float:'right',padding:0,width:180}}
                                     autoWidth={false}

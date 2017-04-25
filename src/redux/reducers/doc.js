@@ -60,21 +60,21 @@ const doc = (state = initialState, action) => {
                     let topIdx;
                     let nLines = [];
                     for (let i = 0; i < state.length; i++) {
-                        if (action.data.diff[0].id === undefined || state[i].id === action.data.diff[0].id) {
+                        if (action.data.diff[0].id === undefined || action.data.diff[0].id === null || state[i].id === action.data.diff[0].id) {
                             topIdx = i;
                             break;
                         }
                     }
                     idx = 0;
                     for (let i = 0; i < action.data.diff.length; i++) {
-                        if (action.data.diff[i].id !== undefined) {
+                        if (action.data.diff[i].id !== undefined && action.data.diff[i].id !== null) {
                             nLines[idx++] = {
                                 id: action.data.diff[i].id,
                                 line: action.data.diff[i].line
                             };
                         }
                     }
-                    if (action.data.diff[0].id !== undefined) {
+                    if (action.data.diff[0].id !== undefined && action.data.diff[0].id !== null) {
                         return [
                             ...state.slice(0, topIdx),
                             ...nLines,
