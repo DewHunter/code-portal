@@ -9,8 +9,6 @@ const WELCOME_DOC_STR = [
     " * Use the Gear button to change settings about the editor",
     " * Use the play button to start a session...",
     " * ... and share the link with people to join you and edit this document, LIVE!",
-    " *",
-    " * @author Jorge",
     " */",
     "export const sayHello = () => {",
     "    console.log('Hello, Welcome to code-portal!');",

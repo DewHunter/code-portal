@@ -1,3 +1,6 @@
+import ReactGA from 'react-ga';
+ReactGA.initialize('UA-102434044-1');
+
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
@@ -29,6 +32,11 @@ const muiTheme = getMuiTheme(darkBaseTheme, {
 });
 
 class App extends Component {
+
+  componentDidMount() {
+      ReactGA.pageview(window.location.pathname);
+  }
+
   render() {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
